@@ -1,8 +1,10 @@
 using Infrastructure;
+using Infrastructure.Config;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
 
 var app = builder.Build();
 
@@ -12,7 +14,9 @@ var logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration["ConnectionString:DefaultConnection"]));
+{
+    options.UseNpgsql(configuration.GetConnectionString("AppDbContext"));
+});
 
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger, dispose: true);
@@ -27,7 +31,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 
 
 app.Run();
